@@ -32,6 +32,7 @@ public class ErrorHandler {
     public Map<String, String> handleNullPointerException(final NullPointerException e) {
         return Map.of("error", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleObjectNotFoundException(final ObjectNotFoundException e) {
