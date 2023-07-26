@@ -10,6 +10,11 @@ public class InMemoryUserStorage implements UserStorage {
     private Integer id = 1;
 
     @Override
+    public Integer getNextId() {
+        return id++;
+    }
+
+    @Override
     public List<User> getAll() {
         return new ArrayList<>(users.values());
     }
@@ -21,9 +26,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        user.setId(id);
-        users.put(id, user);
-        id++;
+        user.setId(getNextId());
+        users.put(user.getId(), user);
         return user;
     }
 

@@ -23,7 +23,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto findItem(Integer id) {
-        Item item = itemStorage.find(id);
+        Item item = itemStorage.find(id).orElseThrow(() -> {
+            log.warn("Вещь с id {} не найдена", id);
+            throw new ObjectNotFoundException("Вещь не найдена");
+        });
         return itemMapper.toDto(item);
     }
 
@@ -66,9 +69,12 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public ItemDto updateItem(Integer userId, Integer itemId, ItemDto itemDto) {
-        Item item = itemStorage.find(itemId);
+        Item item = itemStorage.find(itemId).orElseThrow(() -> {
+            log.warn("Вещь с id {} не найдена", itemId);
+            throw new ObjectNotFoundException("Вещь не найдена");
+        });
         if (Objects.equals(item.getOwner(), userId)) {
-            return itemMapper.toDto(itemStorage.update(itemMapper.toEntity(itemDto, itemId)));
+            return itemMapper.toDto(itemStorage.update(itemMapper.toEntity(itemDto, item)));
         } else {
             log.warn("Пользователь не владелец");
             throw new AuthOwnerException("Пользователь не владелец");

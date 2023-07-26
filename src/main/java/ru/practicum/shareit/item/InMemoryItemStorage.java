@@ -2,10 +2,7 @@ package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class InMemoryItemStorage implements ItemStorage {
@@ -13,20 +10,24 @@ public class InMemoryItemStorage implements ItemStorage {
     private Integer id = 1;
 
     @Override
+    public Integer getNextId() {
+        return id++;
+    }
+
+    @Override
     public List<Item> getAll() {
         return new ArrayList<>(items.values());
     }
 
     @Override
-    public Item find(Integer id) {
-        return items.get(id);
+    public Optional<Item> find(Integer id) {
+        return Optional.ofNullable(items.get(id));
     }
 
     @Override
     public Item create(Item item) {
-        item.setId(id);
-        items.put(id, item);
-        id++;
+        item.setId(getNextId());
+        items.put(item.getId(), item);
         return item;
     }
 

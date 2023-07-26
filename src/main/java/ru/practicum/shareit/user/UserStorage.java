@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserStorage {
+    Integer getNextId();
+
     List<User> getAll();
 
     Optional<User> find(Integer id);

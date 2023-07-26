@@ -7,5 +7,5 @@ public interface UserMapper {
 
     User toNewEntity(UserDto dto);
 
-    User toEntity(UserDto dto, Integer id);
+    User toEntity(UserDto dto, User user);
 }

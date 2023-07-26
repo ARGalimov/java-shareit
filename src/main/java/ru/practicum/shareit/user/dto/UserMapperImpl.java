@@ -5,16 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserStorage;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class UserMapperImpl implements UserMapper {
-    private final UserStorage userStorage;
-
     @Override
     public UserDto toDto(User user) {
         return new UserDto(
@@ -34,23 +32,14 @@ public class UserMapperImpl implements UserMapper {
     }
 
     @Override
-    public User toEntity(UserDto dto, Integer id) {
-        User user = userStorage.find(id).orElseThrow(() -> {
-            log.warn("User with id {} not found", id);
-            throw new ObjectNotFoundException("Пользователь не найден");
-        });
-        String name = user.getName();
-        String email = user.getEmail();
-        if (Objects.nonNull(dto.getName())) {
-            name = dto.getName();
-        }
-        if (Objects.nonNull(dto.getEmail())) {
-            email = dto.getEmail();
-        }
-        return new User(
-                id,
-                name,
-                email
-        );
+    public User toEntity(UserDto dto, User user) {
+        return Optional.ofNullable(user)
+                .map(existingUser -> new User(existingUser.getId(),
+                        Objects.nonNull(dto.getName()) ? dto.getName() : existingUser.getName(),
+                        Objects.nonNull(dto.getEmail()) ? dto.getEmail() : existingUser.getEmail()))
+                .orElseThrow(() -> {
+                    log.warn("Пользователь c id не найден");
+                    throw new ObjectNotFoundException("Пользователь не найден");
+                });
     }
 }

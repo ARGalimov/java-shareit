@@ -1,17 +1,18 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.Item;
-import ru.practicum.shareit.item.ItemStorage;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
+@Slf4j
 @RequiredArgsConstructor
 public class ItemMapperImpl implements ItemMapper {
-    private final ItemStorage itemStorage;
-
     @Override
     public Item createNewEntity(Integer userId, ItemDto dto) {
         return new Item(
@@ -25,28 +26,26 @@ public class ItemMapperImpl implements ItemMapper {
     }
 
     @Override
-    public Item toEntity(ItemDto dto, Integer id) {
-        Item item = itemStorage.find(id);
-        String name = item.getName();
-        String description = item.getDescription();
-        Boolean available = item.getAvailable();
-        if (Objects.nonNull(dto.getName())) {
-            name = dto.getName();
-        }
-        if (Objects.nonNull(dto.getDescription())) {
-            description = dto.getDescription();
-        }
-        if (Objects.nonNull(dto.getAvailable())) {
-            available = dto.getAvailable();
-        }
-        return new Item(
-                id,
-                name,
-                description,
-                available,
-                item.getOwner(),
-                item.getItemRequest()
-        );
+    public Item toEntity(ItemDto dto, Item item) {
+        return Optional.ofNullable(item)
+                .map(existingItem -> {
+                    String name = Objects.nonNull(dto.getName()) ? dto.getName() : existingItem.getName();
+                    String description = Objects.nonNull(dto.getDescription()) ? dto.getDescription() : existingItem.getDescription();
+                    Boolean available = Objects.nonNull(dto.getAvailable()) ? dto.getAvailable() : existingItem.getAvailable();
+
+                    return new Item(
+                            existingItem.getId(),
+                            name,
+                            description,
+                            available,
+                            existingItem.getOwner(),
+                            existingItem.getItemRequest()
+                    );
+                })
+                .orElseThrow(() -> {
+                    log.warn("Вещь не найдена");
+                    throw new ObjectNotFoundException("Вещь не найдена");
+                });
     }
 
     @Override

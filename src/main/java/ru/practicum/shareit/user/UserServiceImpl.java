@@ -47,7 +47,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto, Integer id) {
-        User user = userMapper.toEntity(userDto, id);
+        User user = userMapper.toEntity(userDto, userStorage.find(id).orElseThrow(() -> {
+            log.warn("Пользователь с id {} не найден", id);
+            throw new ObjectNotFoundException("Пользователь не найден");
+        }));
         if (Objects.nonNull(userDto.getEmail())) {
             validateEmail(user);
         }
