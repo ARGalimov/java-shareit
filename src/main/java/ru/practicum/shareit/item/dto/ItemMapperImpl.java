@@ -28,20 +28,12 @@ public class ItemMapperImpl implements ItemMapper {
     @Override
     public Item toEntity(ItemDto dto, Item item) {
         return Optional.ofNullable(item)
-                .map(existingItem -> {
-                    String name = Objects.nonNull(dto.getName()) ? dto.getName() : existingItem.getName();
-                    String description = Objects.nonNull(dto.getDescription()) ? dto.getDescription() : existingItem.getDescription();
-                    Boolean available = Objects.nonNull(dto.getAvailable()) ? dto.getAvailable() : existingItem.getAvailable();
-
-                    return new Item(
-                            existingItem.getId(),
-                            name,
-                            description,
-                            available,
-                            existingItem.getOwner(),
-                            existingItem.getItemRequest()
-                    );
-                })
+                .map(existingItem -> new Item(existingItem.getId(),
+                        Objects.nonNull(dto.getName()) ? dto.getName() : existingItem.getName(),
+                        Objects.nonNull(dto.getDescription()) ? dto.getDescription() : existingItem.getDescription(),
+                        Objects.nonNull(dto.getAvailable()) ? dto.getAvailable() : existingItem.getAvailable(),
+                        existingItem.getOwner(),
+                        existingItem.getItemRequest()))
                 .orElseThrow(() -> {
                     log.warn("Вещь не найдена");
                     throw new ObjectNotFoundException("Вещь не найдена");
