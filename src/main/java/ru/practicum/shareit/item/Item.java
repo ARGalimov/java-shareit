@@ -5,21 +5,33 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import ru.practicum.shareit.exception.NullObjectException;
 import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.user.User;
 
+import javax.persistence.*;
 import java.util.Objects;
 
 @Data
 @NoArgsConstructor
+@Entity
+@Table(name = "items", schema = "public")
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "item_id")
     private Integer id;
+    @Column(nullable = false)
     private String name;
+    @Column(nullable = false)
     private String description;
-    @NonNull
-    private Boolean available;
-    private Integer owner;
+    @Column(nullable = false)
+    private boolean available;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User owner;
+    @Transient
     private ItemRequest itemRequest;
 
-    public Item(Integer id, String name, String description, @NonNull Boolean available, Integer owner, ItemRequest itemRequest) {
+    public Item(Integer id, String name, String description, @NonNull Boolean available, User owner, ItemRequest itemRequest) {
         if (Objects.isNull(name) || Objects.isNull(description) || name.isEmpty() || description.isEmpty()) {
             throw new NullObjectException("Значение имени или описания не могут быть пустыми");
         }
@@ -29,6 +41,19 @@ public class Item {
         this.available = available;
         this.owner = owner;
         this.itemRequest = itemRequest;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Item item = (Item) o;
+        return Objects.equals(id, item.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
 
