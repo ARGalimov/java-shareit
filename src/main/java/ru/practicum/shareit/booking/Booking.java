@@ -31,6 +31,7 @@ public class Booking {
     @JoinColumn(name = "user_id", nullable = false)
     private User booker;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private BookingStatus status;
 
     @Override

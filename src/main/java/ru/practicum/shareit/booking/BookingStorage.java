@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.user.User;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,18 +17,18 @@ public interface BookingStorage extends JpaRepository<Booking, Integer> {
             "b.status = 'APPROVED'")
     List<Booking> findAllByDateAndId(Integer itemId, LocalDateTime start, LocalDateTime end);
 
-    List<Booking> findAllByBookerId(Integer bookerId);
+    List<Booking> findAllByBookerId(Integer bookerId, Sort sort);
 
-    List<Booking> findAllByBookerIdAndStatus(Integer bookerId, BookingStatus status);
+    List<Booking> findAllByBookerIdAndStatus(Integer bookerId, BookingStatus status, Sort sort);
 
-    List<Booking> findAllByBookerIdAndEndIsBefore(Integer bookerId, LocalDateTime date);
+    List<Booking> findAllByBookerIdAndEndIsBefore(Integer bookerId, LocalDateTime date, Sort sort);
 
-    List<Booking> findAllByBookerIdAndStartIsAfter(Integer bookerId, LocalDateTime date);
+    List<Booking> findAllByBookerIdAndStartIsAfter(Integer bookerId, LocalDateTime date, Sort sort);
 
     @Query("select b from Booking b where  " +
             "b.start < :date and :date < b.end and " +
             "b.booker.id = :bookerId")
-    List<Booking> findByBookerIdCurrDate(Integer bookerId, LocalDateTime date);
+    List<Booking> findByBookerIdCurrDate(Integer bookerId, LocalDateTime date, Sort sort);
 
     @Query("select b from Booking b where  " +
             "b.item.owner.id = :ownerId")

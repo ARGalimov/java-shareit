@@ -19,12 +19,14 @@ import ru.practicum.shareit.item.comment.CommentStorage;
 import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.dto.ItemMapperImpl;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -44,7 +46,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Вещь не найдена");
         });
         log.info("Вещь с id {} найдена", itemId);
-        ItemDto itemDto = itemMapper.toDto(item);
+        ItemDto itemDto = ItemMapper.toDto(item);
 
         List<Comment> comments = commentStorage.findAllByItemId(itemId, Sort.by("id"));
         itemDto.setComments(CommentMapper.mapToCommentDto(comments));
@@ -80,11 +82,11 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<ItemDto> findItemsByOwner(Integer userId) {
-        List<Item> items = new ArrayList<>(itemStorage.findAllByOwnerId(userId));
-        log.info("Найдено {} вещей", items.size());
-        items.sort(Comparator.comparing(Item::getId));
-        List<ItemDto> itemsDto = itemMapper.toDto(items);
-        log.info("Обработано {} вещей", itemsDto.size());
+//        List<Item> items = new ArrayList<>(itemStorage.findAllByOwnerId(userId));
+//        items.sort(Comparator.comparing(Item::getId));
+        List<Item> items = itemStorage.findAllByOwnerId(userId, Sort.by("id"));
+        List<ItemDto> itemsDto = ItemMapper.toDto(items);
+        log.info("Найдено {} вещей", itemsDto.size());
         itemsDto.forEach(this::loadBookingDates);
         return itemsDto;
     }
@@ -98,7 +100,7 @@ public class ItemServiceImpl implements ItemService {
                     item.getDescription().toLowerCase().contains(text.toLowerCase())) &&
                     item.isAvailable() &&
                     !text.equals("")) {
-                itemsDto.add(itemMapper.toDto(item));
+                itemsDto.add(ItemMapper.toDto(item));
             }
         }
         return itemsDto;
@@ -124,7 +126,7 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         });
         log.info("Вещь создана");
-        return itemMapper.toDto(itemStorage.save(itemMapper.createNewEntity(user, itemDto)));
+        return ItemMapper.toDto(itemStorage.save(ItemMapper.createNewEntity(user, itemDto)));
     }
 
     @Transactional
@@ -150,7 +152,7 @@ public class ItemServiceImpl implements ItemService {
             log.info("Вещь с id {} обновляем Available", itemId);
         }
 
-        return new ItemMapperImpl().toDto(itemStorage.save(item));
+        return ItemMapper.toDto(itemStorage.save(item));
     }
 
     @Override

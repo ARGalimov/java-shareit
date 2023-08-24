@@ -13,8 +13,8 @@ import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserMapperImpl;
-
+import ru.practicum.shareit.user.UserStorage;
+import org.springframework.data.domain.Sort;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,13 +27,17 @@ import java.util.List;
 public class BookingServiceImp implements BookingService {
     private final BookingStorage bookingStorage;
     private final UserService userService;
+    private final UserStorage userStorage;
     private final ItemService itemService;
     private final ItemStorage itemStorage;
 
     @Transactional
     @Override
     public BookingDto create(Integer userId, PostBookingDto postBookingDto) {
-        User booker = new UserMapperImpl().toNewEntity(userService.findUser(userId));
+        User booker = userStorage.findById(userId).orElseThrow(() -> {
+            log.warn("Пользователь с id {} не найден", userId);
+            throw new ObjectNotFoundException("Пользователь не найден");
+        });
         log.info("Определен Booker");
         Integer bookerId = booker.getId();
         Integer itemId = postBookingDto.getItemId();
@@ -41,8 +45,8 @@ public class BookingServiceImp implements BookingService {
         Item item = itemStorage.findById(itemId).orElseThrow(() -> throwNotFoundItemException("Предмет с id " +
                 itemId + " не найден!"));
         checkItemAvailable(item);
+        checkBookingDate(postBookingDto);
         Booking booking = BookingMapper.mapToBooking(booker, item, postBookingDto, BookingStatus.WAITING);
-        checkBookingDate(booking);
 
         if (bookerId.equals(item.getOwner().getId())) {
             String message = "Предмет " + itemId + " не доступен для бронирования владельцем " + bookerId;
@@ -51,8 +55,8 @@ public class BookingServiceImp implements BookingService {
         } else {
             log.info("Предмет {} бронирует не владелец, норм.", itemId);
         }
-
-        return BookingMapper.mapToBookingDto(bookingStorage.save(booking));
+        Booking savedBooking = bookingStorage.save(booking);
+        return BookingMapper.mapToBookingDto(savedBooking);
     }
 
     @Override
@@ -76,31 +80,31 @@ public class BookingServiceImp implements BookingService {
         BookingState state = stateToEnum(stateParam);
         userService.findUser(userId);
         List<Booking> bookings;
+        Sort sort = Sort.by(Sort.Direction.DESC, "start");
 
         switch (state) {
             case ALL:
-                bookings = bookingStorage.findAllByBookerId(userId);
+                bookings = bookingStorage.findAllByBookerId(userId, sort);
                 break;
             case PAST:
-                bookings = bookingStorage.findAllByBookerIdAndEndIsBefore(userId, LocalDateTime.now());
+                bookings = bookingStorage.findAllByBookerIdAndEndIsBefore(userId, LocalDateTime.now(), sort);
                 break;
             case FUTURE:
-                bookings = bookingStorage.findAllByBookerIdAndStartIsAfter(userId, LocalDateTime.now());
+                bookings = bookingStorage.findAllByBookerIdAndStartIsAfter(userId, LocalDateTime.now(), sort);
                 break;
             case CURRENT:
-                bookings = bookingStorage.findByBookerIdCurrDate(userId, LocalDateTime.now());
+                bookings = bookingStorage.findByBookerIdCurrDate(userId, LocalDateTime.now(), sort);
                 break;
             case WAITING:
-                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING);
+                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, sort);
                 break;
             case REJECTED:
-                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED);
+                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, sort);
                 break;
             default:
                 bookings = new ArrayList<>();
         }
 
-        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
         return BookingMapper.mapToBookingDto(bookings);
     }
 
@@ -165,10 +169,10 @@ public class BookingServiceImp implements BookingService {
         log.info("Предмет {} доступен для бронирования", item.getId());
     }
 
-    private void checkBookingDate(Booking booking) {
-        if (booking.getStart().isBefore(LocalDateTime.now()) ||
-                booking.getStart().isAfter(booking.getEnd()) ||
-                booking.getEnd().isEqual(booking.getStart())) {
+    private void checkBookingDate(PostBookingDto  bookingDto) {
+        if (bookingDto.getStart().isBefore(LocalDateTime.now()) ||
+                bookingDto.getStart().isAfter(bookingDto.getEnd()) ||
+                bookingDto.getEnd().isEqual(bookingDto.getStart())) {
             String message = "Некорректная дата бронирования";
             log.warn(message);
             throw new IncorrectDateException(message);

@@ -8,7 +8,6 @@ import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.UserExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
-import ru.practicum.shareit.user.dto.UserMapperImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,14 +19,13 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
-    private final UserMapper userMapper;
 
     @Override
     public List<UserDto> getAll() {
         List<UserDto> usersDto = new ArrayList<>();
         List<User> users = userStorage.findAll();
         for (User user : users) {
-            usersDto.add(userMapper.toDto(user));
+            usersDto.add(UserMapper.toDto(user));
         }
         return usersDto;
     }
@@ -38,15 +36,15 @@ public class UserServiceImpl implements UserService {
             log.warn("Пользователь с id {} не найден", id);
             throw new ObjectNotFoundException("Пользователь не найден");
         });
-        return userMapper.toDto(user);
+        return UserMapper.toDto(user);
     }
 
     @Transactional
     @Override
     public UserDto createUser(UserDto userDto) {
-        User newUser = userMapper.toNewEntity(userDto);
+        User newUser = UserMapper.toNewEntity(userDto);
 //        validateEmail(newUser);
-        return userMapper.toDto(userStorage.save(newUser));
+        return UserMapper.toDto(userStorage.save(newUser));
     }
 
     @Transactional
@@ -61,7 +59,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userDto.getEmail());
         }
 
-        return new UserMapperImpl().toDto(userStorage.save(user));
+        return UserMapper.toDto(userStorage.save(user));
     }
 
     @Transactional
