@@ -1,8 +1,6 @@
-package ru.practicum.shareit.booking;
+package ru.practicum.shareit.item.comment;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
@@ -10,36 +8,31 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity
-@Table(name = "bookings", schema = "public")
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class Booking {
+@Entity
+@Table(name = "comments", schema = "public")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "booking_id")
+    @Column(name = "comment_id")
     private Integer id;
-    @Column(name = "start_date")
-    private LocalDateTime start;
-    @Column(name = "end_date")
-    private LocalDateTime end;
-    @ManyToOne
+    @Column(nullable = false)
+    private String text;
+    @ManyToOne(cascade = CascadeType.REFRESH)
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User booker;
-    @Enumerated(EnumType.STRING)
+    private User author;
     @Column(nullable = false)
-    private BookingStatus status;
+    private LocalDateTime created;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Booking booking = (Booking) o;
-        return Objects.equals(id, booking.id);
+        Comment comment = (Comment) o;
+        return Objects.equals(id, comment.id);
     }
 
     @Override
