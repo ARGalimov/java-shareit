@@ -38,17 +38,6 @@ public class BookingMapper {
         return result;
     }
 
-    public static Booking mapToBooking(User booker, BookingDto bookingDto) {
-        Booking booking = new Booking();
-        booking.setId(bookingDto.getId());
-        booking.setStart(bookingDto.getStart());
-        booking.setEnd(bookingDto.getEnd());
-        booking.setItem(booking.getItem());
-        booking.setBooker(booker);
-        booking.setStatus(bookingDto.getStatus());
-        return booking;
-    }
-
     public static Booking mapToBooking(User booker, Item item, PostBookingDto bookingDto, BookingStatus status) {
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());

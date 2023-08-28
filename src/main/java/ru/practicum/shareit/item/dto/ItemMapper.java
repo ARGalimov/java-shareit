@@ -3,12 +3,13 @@ package ru.practicum.shareit.item.dto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -24,20 +25,6 @@ public class ItemMapper {
                 user,
                 request
         );
-    }
-
-    public static Item toEntity(ItemDto dto, Item item) {
-        return Optional.ofNullable(item)
-                .map(existingItem -> new Item(existingItem.getId(),
-                        Objects.nonNull(dto.getName()) ? dto.getName() : existingItem.getName(),
-                        Objects.nonNull(dto.getDescription()) ? dto.getDescription() : existingItem.getDescription(),
-                        Objects.nonNull(dto.getAvailable()) ? dto.getAvailable() : existingItem.isAvailable(),
-                        existingItem.getOwner(),
-                        existingItem.getItemRequest()))
-                .orElseThrow(() -> {
-                    log.warn("Вещь не найдена");
-                    throw new ObjectNotFoundException("Вещь не найдена");
-                });
     }
 
     public static ItemDto toDto(Item item) {

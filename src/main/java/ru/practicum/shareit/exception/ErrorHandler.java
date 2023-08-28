@@ -11,12 +11,6 @@ import java.util.Map;
 @RestControllerAdvice("ru.practicum.shareit")
 public class ErrorHandler {
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public Map<String, String> handleAuthOwnerException(final AuthOwnerException e) {
-        return Map.of("error", e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleUserExistException(final UserExistException e) {
         return Map.of("error", e.getMessage());

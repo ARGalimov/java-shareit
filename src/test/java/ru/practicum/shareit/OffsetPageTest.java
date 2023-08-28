@@ -9,12 +9,12 @@ class OffsetPageTest {
     Pageable pageable = new OffsetPage(10, 2);
 
     @Test
-    void  shouldExceptionWhenSizeLessThanZero() {
+    void shouldExceptionWhenSizeLessThanZero() {
         assertThrows(IllegalArgumentException.class, () -> new OffsetPage(-10, 2));
     }
 
     @Test
-    void  shouldExceptionWhenLimitLessThanZero() {
+    void shouldExceptionWhenLimitLessThanZero() {
         assertThrows(IllegalArgumentException.class, () -> new OffsetPage(10, -2));
     }
 
