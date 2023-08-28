@@ -42,8 +42,8 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleStateIsNotSupportException(StateIsNotSupportException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handleStateIsNotSupportException(StateIsNotSupportException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler

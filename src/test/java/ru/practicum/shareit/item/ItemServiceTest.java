@@ -128,7 +128,7 @@ public class ItemServiceTest {
         }
         CommentDto commentDto = new CommentDto(1, "Comment1", newUserDto.getName(), LocalDateTime.now());
         itemService.createComment(newUserDto.getId(), newItemDto.getId(), commentDto);
-        newItemDto = itemService.findItem(newUserDto.getId(), newItemDto.getId());
+        newItemDto = itemService.findItem(newItemDto.getId(), newUserDto.getId());
         assertEquals(1, newItemDto.getComments().size());
     }
 }

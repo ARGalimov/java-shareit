@@ -1,18 +1,20 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.UserExistException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -61,5 +63,17 @@ class UserServiceTest {
         UserDto updateUserDto = userService.findUser(returnUserDto.getId());
         assertThat(updateUserDto.getName(), equalTo("NewName"));
         assertThat(updateUserDto.getEmail(), equalTo("new@email.ru"));
+    }
+
+    @Test
+    void shouldExceptionWhenUpdateUserWithExistEmail() {
+        UserDto returnUserDto1 = userService.createUser(userDto1);
+        UserDto returnUserDto2 = userService.createUser(userDto2);
+        UserDto patchUserDto = new UserDto();
+        patchUserDto.setEmail(userDto1.getEmail());
+        UserExistException exp = Assertions.assertThrows(
+                UserExistException.class,
+                () -> userService.updateUser(patchUserDto, returnUserDto2.getId()));
+        assertFalse(exp.getMessage().isEmpty());
     }
 }

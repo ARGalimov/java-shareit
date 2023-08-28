@@ -10,6 +10,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.PostBookingDto;
 import ru.practicum.shareit.exception.BookingAlreadyApproveException;
 import ru.practicum.shareit.exception.IncorrectDateException;
+import ru.practicum.shareit.exception.ItemNotAvailableException;
 import ru.practicum.shareit.exception.PermissionException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -78,6 +79,24 @@ public class BookingServiceTest {
                 newItemDto.getId()
         );
         IncorrectDateException exp = assertThrows(IncorrectDateException.class,
+                () -> bookingService.create(postBookingDto, ownerDto.getId()));
+        assertFalse(exp.getMessage().isEmpty());
+    }
+
+    @Test
+    void shouldExceptionWhenItemNotAvailableException() {
+        UserDto ownerDto = userService.createUser(userDto1);
+        UserDto newUserDto = userService.createUser(userDto2);
+        ItemDto newItemDto = itemService.createItem(ownerDto.getId(), itemDto1);
+        ItemDto patchItemDto = new ItemDto(newItemDto.getName(), newItemDto.getDescription(), false);
+        newItemDto = itemService.updateItem(ownerDto.getId(), newItemDto.getId(), patchItemDto);
+
+        PostBookingDto postBookingDto = new PostBookingDto(
+                LocalDateTime.of(2025, 1, 5, 2, 0, 0),
+                LocalDateTime.of(2025, 1, 20, 10, 0, 0),
+                newItemDto.getId()
+        );
+        ItemNotAvailableException exp = assertThrows(ItemNotAvailableException.class,
                 () -> bookingService.create(postBookingDto, ownerDto.getId()));
         assertFalse(exp.getMessage().isEmpty());
     }

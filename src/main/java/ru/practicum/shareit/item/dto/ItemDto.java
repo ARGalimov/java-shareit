@@ -20,4 +20,10 @@ public class ItemDto {
     private ItemBookingDto lastBooking;
     private ItemBookingDto nextBooking;
     private List<CommentDto> comments;
+
+    public ItemDto(String name, String description, boolean available) {
+        this.name = name;
+        this.description = description;
+        this.available = available;
+    }
 }
