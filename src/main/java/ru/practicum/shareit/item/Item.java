@@ -28,7 +28,8 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "request_id")
     private ItemRequest itemRequest;
 
     public Item(Integer id, String name, String description, @NonNull Boolean available, User owner, ItemRequest itemRequest) {

@@ -2,8 +2,11 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.OffsetPage;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.PostBookingDto;
@@ -14,10 +17,9 @@ import ru.practicum.shareit.item.ItemStorage;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.UserStorage;
-import org.springframework.data.domain.Sort;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -33,7 +35,7 @@ public class BookingServiceImp implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto create(Integer userId, PostBookingDto postBookingDto) {
+    public BookingDto create(PostBookingDto postBookingDto, Integer userId) {
         User booker = userStorage.findById(userId).orElseThrow(() -> {
             log.warn("Пользователь с id {} не найден", userId);
             throw new ObjectNotFoundException("Пользователь не найден");
@@ -76,30 +78,30 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findUserBooking(Integer userId, String stateParam) {
+    public List<BookingDto> findUserBooking(Integer userId, String stateParam, Integer from, Integer size) {
         BookingState state = stateToEnum(stateParam);
         userService.findUser(userId);
         List<Booking> bookings;
-        Sort sort = Sort.by(Sort.Direction.DESC, "start");
+        Pageable pageable = new OffsetPage(from, size, Sort.by(Sort.Direction.DESC, "start"));
 
         switch (state) {
             case ALL:
-                bookings = bookingStorage.findAllByBookerId(userId, sort);
+                bookings = bookingStorage.findAllByBookerId(userId, pageable);
                 break;
             case PAST:
-                bookings = bookingStorage.findAllByBookerIdAndEndIsBefore(userId, LocalDateTime.now(), sort);
+                bookings = bookingStorage.findAllByBookerIdAndEndIsBefore(userId, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = bookingStorage.findAllByBookerIdAndStartIsAfter(userId, LocalDateTime.now(), sort);
+                bookings = bookingStorage.findAllByBookerIdAndStartIsAfter(userId, LocalDateTime.now(), pageable);
                 break;
             case CURRENT:
-                bookings = bookingStorage.findByBookerIdCurrDate(userId, LocalDateTime.now(), sort);
+                bookings = bookingStorage.findByBookerIdCurrDate(userId, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, sort);
+                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, sort);
+                bookings = bookingStorage.findAllByBookerIdAndStatus(userId, BookingStatus.REJECTED, pageable);
                 break;
             default:
                 bookings = new ArrayList<>();
@@ -109,35 +111,35 @@ public class BookingServiceImp implements BookingService {
     }
 
     @Override
-    public List<BookingDto> findItemBooking(Integer userId, String stateParam) {
+    public List<BookingDto> findItemBooking(Integer userId, String stateParam, Integer from, Integer size) {
         BookingState state = stateToEnum(stateParam);
         userService.findUser(userId);
         List<Booking> bookings;
+        Pageable pageable = new OffsetPage(from, size, Sort.by(Sort.Direction.DESC, "start"));
 
         switch (state) {
             case ALL:
-                bookings = bookingStorage.findAllItemBooking(userId);
+                bookings = bookingStorage.findAllItemBooking(userId, pageable);
                 break;
             case PAST:
-                bookings = bookingStorage.findAllItemBookingEndIsBefore(userId, LocalDateTime.now());
+                bookings = bookingStorage.findAllItemBookingEndIsBefore(userId, LocalDateTime.now(), pageable);
                 break;
             case FUTURE:
-                bookings = bookingStorage.findAllItemBookingAndStartIsAfter(userId, LocalDateTime.now());
+                bookings = bookingStorage.findAllItemBookingAndStartIsAfter(userId, LocalDateTime.now(), pageable);
                 break;
             case CURRENT:
-                bookings = bookingStorage.findAllItemBookingCurrDate(userId, LocalDateTime.now());
+                bookings = bookingStorage.findAllItemBookingCurrDate(userId, LocalDateTime.now(), pageable);
                 break;
             case WAITING:
-                bookings = bookingStorage.findAllItemBookingStatus(userId, BookingStatus.WAITING);
+                bookings = bookingStorage.findAllItemBookingStatus(userId, BookingStatus.WAITING, pageable);
                 break;
             case REJECTED:
-                bookings = bookingStorage.findAllItemBookingStatus(userId, BookingStatus.REJECTED);
+                bookings = bookingStorage.findAllItemBookingStatus(userId, BookingStatus.REJECTED, pageable);
                 break;
             default:
                 bookings = new ArrayList<>();
         }
 
-        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
         return BookingMapper.mapToBookingDto(bookings);
     }
 
@@ -169,7 +171,7 @@ public class BookingServiceImp implements BookingService {
         log.info("Предмет {} доступен для бронирования", item.getId());
     }
 
-    private void checkBookingDate(PostBookingDto  bookingDto) {
+    private void checkBookingDate(PostBookingDto bookingDto) {
         if (bookingDto.getStart().isBefore(LocalDateTime.now()) ||
                 bookingDto.getStart().isAfter(bookingDto.getEnd()) ||
                 bookingDto.getEnd().isEqual(bookingDto.getStart())) {

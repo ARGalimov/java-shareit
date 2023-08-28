@@ -16,7 +16,7 @@ public class ItemDto {
     private String description;
     private Boolean available;
     private Integer owner;
-    private Integer request;
+    private Integer requestId;
     private ItemBookingDto lastBooking;
     private ItemBookingDto nextBooking;
     private List<CommentDto> comments;
