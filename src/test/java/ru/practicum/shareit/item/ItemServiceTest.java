@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.PostBookingDto;
-import ru.practicum.shareit.exception.NullObjectException;
 import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.PermissionException;
 import ru.practicum.shareit.exception.UserCommentException;
