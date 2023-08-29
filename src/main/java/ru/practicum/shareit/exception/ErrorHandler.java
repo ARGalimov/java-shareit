@@ -12,26 +12,26 @@ import java.util.Map;
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handleUserExistException(final UserExistException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handleUserExistException(final UserExistException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleNullObjectException(final NullObjectException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handleNullObjectException(final NullObjectException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleNullPointerException(final NullPointerException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handleNullPointerException(final NullPointerException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handleObjectNotFoundException(final ObjectNotFoundException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handleObjectNotFoundException(final ObjectNotFoundException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
@@ -42,13 +42,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleIllegalArgumentException(final IllegalArgumentException e) {
-        return Map.of("error", "Unknown state: UNSUPPORTED_STATUS");
+    public ErrorResponse handleIllegalArgumentException(final IllegalArgumentException e) {
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public Map<String, String> handlePersistenceException(final PersistenceException e) {
-        return Map.of("error", e.getMessage());
+    public ErrorResponse handlePersistenceException(final PersistenceException e) {
+        return new ErrorResponse(e.getMessage());
     }
 }

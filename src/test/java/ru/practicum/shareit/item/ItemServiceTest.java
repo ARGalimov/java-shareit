@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.PostBookingDto;
+import ru.practicum.shareit.exception.NullObjectException;
+import ru.practicum.shareit.exception.ObjectNotFoundException;
 import ru.practicum.shareit.exception.PermissionException;
 import ru.practicum.shareit.exception.UserCommentException;
 import ru.practicum.shareit.item.comment.CommentDto;
@@ -50,6 +52,9 @@ public class ItemServiceTest {
 
     @Test
     void shouldCreateItem() {
+        ObjectNotFoundException exp = assertThrows(ObjectNotFoundException.class,
+                () -> itemService.createItem(userDto.getId(), itemDto));
+        assertFalse(exp.getMessage().isEmpty());
         UserDto newUserDto = userService.createUser(userDto1);
         ItemDto newItemDto = itemService.createItem(newUserDto.getId(), itemDto);
         ItemDto returnItemDto = itemService.findItem(newItemDto.getId(), newUserDto.getId());
@@ -58,6 +63,9 @@ public class ItemServiceTest {
 
     @Test
     void shouldUpdateItem() {
+        ObjectNotFoundException exp = assertThrows(ObjectNotFoundException.class,
+                () -> itemService.updateItem(userDto.getId(), itemDto.getId(), itemDto));
+        assertFalse(exp.getMessage().isEmpty());
         UserDto newUserDto = userService.createUser(userDto1);
         ItemDto newItemDto = itemService.createItem(newUserDto.getId(), itemDto);
         ItemDto patchItemDto = new ItemDto();
@@ -66,6 +74,18 @@ public class ItemServiceTest {
         ItemDto returnItemDto = itemService.updateItem(newUserDto.getId(), newItemDto.getId(), patchItemDto);
         assertThat(returnItemDto.getName(), equalTo("NewName"));
         assertThat(returnItemDto.getDescription(), equalTo("NewDescription"));
+    }
+
+    @Test
+    void shouldDeleteItem() {
+        UserDto newUserDto = userService.createUser(userDto1);
+        ItemDto newItemDto = itemService.createItem(newUserDto.getId(), itemDto);
+        itemService.deleteItem(newUserDto.getId(), newItemDto.getId());
+        List<ItemDto> listItems = itemService.findItemsByOwner(newUserDto.getId(), 0, 10);
+        assertEquals(0, listItems.size());
+        ObjectNotFoundException exp = assertThrows(ObjectNotFoundException.class,
+                () -> itemService.deleteItem(newUserDto.getId(), newItemDto.getId()));
+        assertFalse(exp.getMessage().isEmpty());
     }
 
     @Test

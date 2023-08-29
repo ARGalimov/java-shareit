@@ -161,6 +161,12 @@ public class BookingServiceTest {
         bookingService.create(bookingInputDto1, newUserDto.getId());
         List<BookingDto> listBookings = bookingService.findUserBooking(newUserDto.getId(), "ALL", 0, 1);
         assertEquals(1, listBookings.size());
+        List<BookingDto> listBookings2 = bookingService.findUserBooking(newUserDto.getId(), "PAST", 0, 1);
+        assertEquals(0, listBookings2.size());
+        List<BookingDto> listBookings3 = bookingService.findUserBooking(newUserDto.getId(), "FUTURE", 0, 1);
+        assertEquals(1, listBookings3.size());
+        List<BookingDto> listBookings4 = bookingService.findUserBooking(newUserDto.getId(), "CURRENT", 0, 1);
+        assertEquals(0, listBookings4.size());
     }
 
 
@@ -290,6 +296,12 @@ public class BookingServiceTest {
         bookingService.create(bookingInputDto1, newUserDto.getId());
         List<BookingDto> listBookings = bookingService.findItemBooking(ownerDto.getId(), "ALL", 0, 1);
         assertEquals(1, listBookings.size());
+        List<BookingDto> listBookings2 = bookingService.findItemBooking(ownerDto.getId(), "PAST", 0, 1);
+        assertEquals(0, listBookings2.size());
+        List<BookingDto> listBookings3 = bookingService.findItemBooking(ownerDto.getId(), "FUTURE", 0, 1);
+        assertEquals(1, listBookings3.size());
+        List<BookingDto> listBookings4 = bookingService.findItemBooking(ownerDto.getId(), "CURRENT", 0, 1);
+        assertEquals(0, listBookings4.size());
     }
 
     @Test
