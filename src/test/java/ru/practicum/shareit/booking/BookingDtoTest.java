@@ -29,13 +29,14 @@ public class BookingDtoTest {
 
     @BeforeEach
     void beforeEach() {
-        bookingDto = new BookingDto(
-                1,
-                LocalDateTime.of(2027, 12, 25, 12, 0),
-                LocalDateTime.of(2027, 12, 26, 12, 0),
-                null,
-                null,
-                BookingStatus.WAITING);
+        bookingDto = BookingDto.builder()
+                .id(1)
+                .start(LocalDateTime.of(2027, 12, 25, 12, 0))
+                .end(LocalDateTime.of(2027, 12, 26, 12, 0))
+                .item(null)
+                .booker(null)
+                .status(BookingStatus.WAITING)
+                .build();
     }
 
     @Test

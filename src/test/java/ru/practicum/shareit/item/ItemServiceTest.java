@@ -40,13 +40,43 @@ public class ItemServiceTest {
 
     @BeforeEach
     void setUp() {
-        userDto = new UserDto(300, "First", "first@mail.ru");
-        userDto1 = new UserDto(101, "user101", "user101@mail.ru");
-        userDto2 = new UserDto(102, "user102", "user102@amail.ru");
-        itemDto = new ItemDto(100, "Item1", "Description1", true,
-                userDto.getId(), null, null, null, null);
-        itemDto2 = new ItemDto(102, "Item2", "Description2", true,
-                userDto.getId(), null, null, null, null);
+        userDto = UserDto.builder()
+                .id(300)
+                .name("First")
+                .email("first@mail.ru")
+                .build();
+        userDto1 = UserDto.builder()
+                .id(101)
+                .name("user101")
+                .email("user101@mail.ru")
+                .build();
+        userDto2 = UserDto.builder()
+                .id(102)
+                .name("user102")
+                .email("user102@amail.ru")
+                .build();
+        itemDto = ItemDto.builder()
+                .id(100)
+                .name("Item1")
+                .description("Description1")
+                .available(true)
+                .owner(userDto.getId())
+                .requestId(null)
+                .lastBooking(null)
+                .nextBooking(null)
+                .comments(null)
+                .build();
+        itemDto2 = ItemDto.builder()
+                .id(102)
+                .name("Item2")
+                .description("Description2")
+                .available(true)
+                .owner(userDto.getId())
+                .requestId(null)
+                .lastBooking(null)
+                .nextBooking(null)
+                .comments(null)
+                .build();
     }
 
     @Test
@@ -122,7 +152,12 @@ public class ItemServiceTest {
         UserDto ownerDto = userService.createUser(userDto1);
         UserDto newUserDto = userService.createUser(userDto2);
         ItemDto newItemDto = itemService.createItem(ownerDto.getId(), itemDto);
-        CommentDto commentDto = new CommentDto(1, "Comment1", "", LocalDateTime.now());
+        CommentDto commentDto = CommentDto.builder()
+                .id(1)
+                .text("Comment1")
+                .authorName("")
+                .created(LocalDateTime.now())
+                .build();
         UserCommentException exp = assertThrows(UserCommentException.class,
                 () -> itemService.createComment(newUserDto.getId(), newItemDto.getId(), commentDto));
         assertFalse(exp.getMessage().isEmpty());
@@ -133,11 +168,11 @@ public class ItemServiceTest {
         UserDto ownerDto = userService.createUser(userDto1);
         UserDto newUserDto = userService.createUser(userDto2);
         ItemDto newItemDto = itemService.createItem(ownerDto.getId(), itemDto);
-        PostBookingDto postBookingDto = new PostBookingDto(
-                LocalDateTime.now().plusSeconds(1),
-                LocalDateTime.now().plusSeconds(2),
-                newItemDto.getId()
-        );
+        PostBookingDto postBookingDto = PostBookingDto.builder()
+                .start(LocalDateTime.now().plusSeconds(1))
+                .end(LocalDateTime.now().plusSeconds(2))
+                .itemId(newItemDto.getId())
+                .build();
         BookingDto bookingDto = bookingService.create(postBookingDto, newUserDto.getId());
         bookingService.approveBooking(ownerDto.getId(), bookingDto.getId(), true);
         try {
@@ -145,7 +180,12 @@ public class ItemServiceTest {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        CommentDto commentDto = new CommentDto(1, "Comment1", newUserDto.getName(), LocalDateTime.now());
+        CommentDto commentDto = CommentDto.builder()
+                .id(1)
+                .text("Comment1")
+                .authorName(newUserDto.getName())
+                .created(LocalDateTime.now())
+                .build();
         itemService.createComment(newUserDto.getId(), newItemDto.getId(), commentDto);
         newItemDto = itemService.findItem(newItemDto.getId(), newUserDto.getId());
         assertEquals(1, newItemDto.getComments().size());

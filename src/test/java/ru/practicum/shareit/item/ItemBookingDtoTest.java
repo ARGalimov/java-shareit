@@ -29,12 +29,12 @@ class ItemBookingDtoTest {
 
     @BeforeEach
     void setUp() {
-        bookingDto = new ItemBookingDto(
-                1,
-                2,
-                LocalDateTime.of(2027, 10, 11, 12, 0),
-                LocalDateTime.of(2027, 10, 20, 12, 0)
-        );
+        bookingDto = ItemBookingDto.builder()
+                .id(1)
+                .bookerId(2)
+                .start(LocalDateTime.of(2027, 10, 11, 12, 0))
+                .end(LocalDateTime.of(2027, 10, 20, 12, 0))
+                .build();
     }
 
     @Test

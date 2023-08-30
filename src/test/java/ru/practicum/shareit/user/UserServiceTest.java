@@ -27,8 +27,16 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        userDto1 = new UserDto(1, "User1", "user1@mail.ru");
-        userDto2 = new UserDto(2, "User2", "user2@mail.ru");
+        userDto1 = UserDto.builder()
+                .id(1)
+                .name("User1")
+                .email("user1@mail.ru")
+                .build();
+        userDto2 = UserDto.builder()
+                .id(2)
+                .name("User2")
+                .email("user2@mail.ru")
+                .build();
     }
 
     @Test
@@ -45,7 +53,11 @@ class UserServiceTest {
 
     @Test
     void shouldDeleteUser() {
-        UserDto tmpUserDto = new UserDto(100, "tmp", "tmp@tmp.com");
+        UserDto tmpUserDto = UserDto.builder()
+                .id(100)
+                .name("tmp")
+                .email("tmp@tmp.com")
+                .build();
         UserDto returnUserDto = userService.createUser(tmpUserDto);
         List<UserDto> listUser = userService.getAll();
         int size = listUser.size();

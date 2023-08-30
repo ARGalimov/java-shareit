@@ -38,17 +38,18 @@ class ItemRequestControllerTest {
 
     @BeforeEach
     void setUp() {
-        UserDto userDto = new UserDto(
-                1,
-                "user",
-                "user@email.ru"
-        );
-        itemRequestDto = new ItemRequestDto(
-                1,
-                "R-description",
-                userDto,
-                LocalDateTime.of(2022, 3, 4, 1, 1, 1),
-                null);
+        UserDto userDto = UserDto.builder()
+                .id(1)
+                .name("user")
+                .email("user@email.ru")
+                .build();
+        itemRequestDto = ItemRequestDto.builder()
+                .id(1)
+                .description("R-description")
+                .requester(userDto)
+                .created(LocalDateTime.of(2022, 3, 4, 1, 1, 1))
+                .items(null)
+                .build();
     }
 
     @Test

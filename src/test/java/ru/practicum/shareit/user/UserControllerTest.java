@@ -33,12 +33,22 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userDto = new UserDto(1,
-                "test",
-                "test@mail.ru");
+        userDto = UserDto.builder()
+                .id(1)
+                .name("test")
+                .email("test@mail.ru")
+                .build();
         listUserDto = List.of(
-                new UserDto(1, "User1", "user1@mail.ru"),
-                new UserDto(2, "User2", "user2@mail.ru")
+                UserDto.builder()
+                        .id(1)
+                        .name("User1")
+                        .email("user1@mail.ru")
+                        .build(),
+                UserDto.builder()
+                        .id(2)
+                        .name("User2")
+                        .email("user2@mail.ru")
+                        .build()
         );
     }
 

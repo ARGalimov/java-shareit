@@ -39,21 +39,23 @@ class ItemControllerTest {
 
     @BeforeEach
     void setUp() {
-        itemDto = new ItemDto(
-                1,
-                "item",
-                "item description",
-                true,
-                1,
-                null,
-                null,
-                null,
-                Collections.EMPTY_LIST
-        );
-        commentDto = new CommentDto(1,
-                "Text comment",
-                "User1",
-                LocalDateTime.of(2020, 7, 8, 5, 4, 1));
+        itemDto = ItemDto.builder()
+                .id(1)
+                .name("item")
+                .description("item description")
+                .available(true)
+                .owner(1)
+                .requestId(null)
+                .lastBooking(null)
+                .nextBooking(null)
+                .comments(Collections.EMPTY_LIST)
+                .build();
+        commentDto = CommentDto.builder()
+                .id(1)
+                .text("Text comment")
+                .authorName("User1")
+                .created(LocalDateTime.of(2020, 7, 8, 5, 4, 1))
+                .build();
         dtoItems = new ArrayList<>();
     }
 

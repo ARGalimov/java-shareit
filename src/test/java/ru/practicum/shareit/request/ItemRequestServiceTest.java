@@ -33,8 +33,16 @@ public class ItemRequestServiceTest {
     void setUp() {
         postItemRequestDto = new PostItemRequestDto();
         postItemRequestDto.setDescription("req description");
-        userDto1 = new UserDto(101, "user1", "user1@mail.ru");
-        userDto2 = new UserDto(102, "user2", "user2@mail.ru");
+        userDto1 = UserDto.builder()
+                .id(101)
+                .name("user1")
+                .email("user1@mail.ru")
+                .build();
+        userDto2 = UserDto.builder()
+                .id(102)
+                .name("user2")
+                .email("user2@mail.ru")
+                .build();
     }
 
     @Test

@@ -41,30 +41,35 @@ class BookingControllerTest {
 
     @BeforeEach
     void setUp() {
-        postBookingDto = new PostBookingDto(
-                LocalDateTime.of(2024, 1, 5, 2, 0, 0),
-                LocalDateTime.of(2025, 1, 6, 2, 0, 0),
-                1);
-
-        ItemDto item = new ItemDto(
-                1,
-                "item",
-                "item description",
-                true,
-                1,
-                null,
-                null,
-                null,
-                Collections.EMPTY_LIST
-        );
-        UserDto booker = new UserDto(1, "user", "user@email.ru");
-        bookingDto = new BookingDto(
-                1,
-                LocalDateTime.of(2024, 1, 5, 2, 0, 0),
-                LocalDateTime.of(2025, 1, 6, 2, 0, 0),
-                item,
-                booker,
-                BookingStatus.WAITING);
+        postBookingDto = PostBookingDto.builder()
+                .start(LocalDateTime.of(2024, 1, 5, 2, 0, 0))
+                .end(LocalDateTime.of(2025, 1, 6, 2, 0, 0))
+                .itemId(1)
+                .build();
+        ItemDto item = ItemDto.builder()
+                .id(1)
+                .name("item")
+                .description("item description")
+                .available(true)
+                .owner(1)
+                .requestId(null)
+                .lastBooking(null)
+                .nextBooking(null)
+                .comments(Collections.EMPTY_LIST)
+                .build();
+        UserDto booker = UserDto.builder()
+                .id(1)
+                .name("user")
+                .email("user@email.ru")
+                .build();
+        bookingDto = BookingDto.builder()
+                .id(1)
+                .start(LocalDateTime.of(2024, 1, 5, 2, 0, 0))
+                .end(LocalDateTime.of(2025, 1, 6, 2, 0, 0))
+                .item(item)
+                .booker(booker)
+                .status(BookingStatus.WAITING)
+                .build();
         dtoBookings = new ArrayList<>();
     }
 
