@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 import ru.practicum.shareit.exception.NullObjectException;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
@@ -11,7 +9,9 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "items", schema = "public")
 public class Item {
@@ -28,7 +28,8 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "request_id")
     private ItemRequest itemRequest;
 
     public Item(Integer id, String name, String description, @NonNull Boolean available, User owner, ItemRequest itemRequest) {
@@ -41,19 +42,6 @@ public class Item {
         this.available = available;
         this.owner = owner;
         this.itemRequest = itemRequest;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return Objects.equals(id, item.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }
 

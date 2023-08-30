@@ -2,9 +2,11 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.OffsetPage;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.BookingStorage;
@@ -19,11 +21,13 @@ import ru.practicum.shareit.item.comment.CommentStorage;
 import ru.practicum.shareit.item.dto.ItemBookingDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.ItemRequestStorage;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserStorage;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,10 +38,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemStorage itemStorage;
-    private final ItemMapper itemMapper;
     private final UserStorage userStorage;
     private final BookingStorage bookingStorage;
     private final CommentStorage commentStorage;
+    private final ItemRequestStorage itemRequestStorage;
 
     @Override
     public ItemDto findItem(Integer itemId, Integer userId) {
@@ -81,10 +85,9 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findItemsByOwner(Integer userId) {
-//        List<Item> items = new ArrayList<>(itemStorage.findAllByOwnerId(userId));
-//        items.sort(Comparator.comparing(Item::getId));
-        List<Item> items = itemStorage.findAllByOwnerId(userId, Sort.by("id"));
+    public List<ItemDto> findItemsByOwner(Integer userId, Integer from, Integer size) {
+        Pageable pageable = new OffsetPage(from, size, Sort.by("id"));
+        List<Item> items = itemStorage.findAllByOwnerId(userId, pageable);
         List<ItemDto> itemsDto = ItemMapper.toDto(items);
         log.info("Найдено {} вещей", itemsDto.size());
         itemsDto.forEach(this::loadBookingDates);
@@ -92,18 +95,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> findItemsByText(String text) {
-        List<ItemDto> itemsDto = new ArrayList<>();
-        List<Item> items = new ArrayList<>(itemStorage.findAll());
-        for (Item item : items) {
-            if ((item.getName().toLowerCase().contains(text.toLowerCase()) ||
-                    item.getDescription().toLowerCase().contains(text.toLowerCase())) &&
-                    item.isAvailable() &&
-                    !text.equals("")) {
-                itemsDto.add(ItemMapper.toDto(item));
-            }
+    public List<ItemDto> findItemsByText(String text, Integer from, Integer size) {
+        if (text.isBlank()) {
+            return Collections.emptyList();
         }
-        return itemsDto;
+        Pageable pageable = new OffsetPage(from, size);
+        return ItemMapper.toDto(itemStorage.search(text, pageable));
     }
 
     @Transactional
@@ -126,7 +123,13 @@ public class ItemServiceImpl implements ItemService {
             throw new ObjectNotFoundException("Пользователь не найден");
         });
         log.info("Вещь создана");
-        return ItemMapper.toDto(itemStorage.save(ItemMapper.createNewEntity(user, itemDto)));
+        ItemRequest itemRequest = null;
+        Integer requestId = itemDto.getRequestId();
+        if (requestId != null) {
+            itemRequest = itemRequestStorage.findById(requestId).orElseThrow(() ->
+                    throwObjectNotFoundException(requestId));
+        }
+        return ItemMapper.toDto(itemStorage.save(ItemMapper.createNewEntity(user, itemRequest, itemDto)));
     }
 
     @Transactional

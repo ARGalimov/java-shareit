@@ -6,6 +6,8 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.PostBookingDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -17,7 +19,7 @@ public class BookingController {
     @PostMapping
     public BookingDto create(@RequestHeader("X-Sharer-User-Id") Integer userId,
                              @Valid @RequestBody PostBookingDto postBookingDto) {
-        return bookingService.create(userId, postBookingDto);
+        return bookingService.create(postBookingDto, userId);
     }
 
     @GetMapping("/{bookingId}")
@@ -27,14 +29,18 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> findUserBooking(@RequestHeader("X-Sharer-User-Id") Integer userId,
-                                            @RequestParam(defaultValue = "ALL", name = "state") String stateParam) {
-        return bookingService.findUserBooking(userId, stateParam);
+                                            @RequestParam(defaultValue = "ALL", name = "state") String stateParam,
+                                            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                            @Positive @RequestParam(defaultValue = "10") Integer size) {
+        return bookingService.findUserBooking(userId, stateParam, from, size);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findItemBooking(@RequestHeader("X-Sharer-User-Id") Integer userId,
-                                            @RequestParam(defaultValue = "ALL", name = "state") String stateParam) {
-        return bookingService.findItemBooking(userId, stateParam);
+                                            @RequestParam(defaultValue = "ALL", name = "state") String stateParam,
+                                            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                            @Positive @RequestParam(defaultValue = "10") Integer size) {
+        return bookingService.findItemBooking(userId, stateParam, from, size);
     }
 
     @PatchMapping("/{bookingId}")

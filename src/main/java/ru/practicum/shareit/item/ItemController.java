@@ -6,6 +6,8 @@ import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
@@ -22,14 +24,17 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> find(@RequestHeader(xSharerUserId) Integer userId) {
-        return itemService.findItemsByOwner(userId);
+    public List<ItemDto> find(@RequestHeader(xSharerUserId) Integer userId,
+                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                              @Positive @RequestParam(defaultValue = "10") Integer size) {
+        return itemService.findItemsByOwner(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> find(@RequestHeader(xSharerUserId) Integer userId,
-                              @RequestParam String text) {
-        return itemService.findItemsByText(text);
+    public List<ItemDto> find(@RequestParam String text,
+                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                              @Positive @RequestParam(defaultValue = "10") Integer size) {
+        return itemService.findItemsByText(text, from, size);
     }
 
     @PostMapping

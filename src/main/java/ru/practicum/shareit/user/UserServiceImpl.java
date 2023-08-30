@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
             user.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
-            validateEmail(user);
+            validateEmail(user, userDto.getEmail());
             user.setEmail(userDto.getEmail());
         }
 
@@ -69,10 +69,10 @@ public class UserServiceImpl implements UserService {
         user.ifPresent(userStorage::delete);
     }
 
-    private void validateEmail(User checkedUser) {
+    private void validateEmail(User checkedUser, String checkedEmail) {
         List<User> users = userStorage.findAll();
         for (User user : users) {
-            if (!user.getId().equals(checkedUser.getId()) && user.getEmail().equals(checkedUser.getEmail())) {
+            if (!user.getId().equals(checkedUser.getId()) && user.getEmail().equals(checkedEmail)) {
                 throw new UserExistException("Такой пользователь уже существует");
             }
         }

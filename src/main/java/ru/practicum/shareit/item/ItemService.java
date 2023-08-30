@@ -8,9 +8,9 @@ import java.util.List;
 public interface ItemService {
     ItemDto findItem(Integer itemId, Integer userId);
 
-    List<ItemDto> findItemsByOwner(Integer userId);
+    List<ItemDto> findItemsByOwner(Integer userId, Integer from, Integer size);
 
-    List<ItemDto> findItemsByText(String text);
+    List<ItemDto> findItemsByText(String text, Integer from, Integer size);
 
     ItemDto createItem(Integer userId, ItemDto itemDto);
 

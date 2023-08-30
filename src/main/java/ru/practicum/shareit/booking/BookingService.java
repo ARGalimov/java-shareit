@@ -6,13 +6,13 @@ import ru.practicum.shareit.booking.dto.PostBookingDto;
 import java.util.List;
 
 public interface BookingService {
-    BookingDto create(Integer userId, PostBookingDto postBookingDto);
+    BookingDto create(PostBookingDto postBookingDto, Integer userId);
 
     BookingDto findById(Integer userId, Integer bookingId);
 
-    List<BookingDto> findUserBooking(Integer userId, String stateParam);
+    List<BookingDto> findUserBooking(Integer userId, String stateParam, Integer from, Integer size);
 
-    List<BookingDto> findItemBooking(Integer userId, String stateParam);
+    List<BookingDto> findItemBooking(Integer userId, String stateParam, Integer from, Integer size);
 
     BookingDto approveBooking(Integer userId, Integer bookingId, Boolean approved);
 }
